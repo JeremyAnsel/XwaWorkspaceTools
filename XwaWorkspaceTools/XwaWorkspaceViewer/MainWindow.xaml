@@ -1,0 +1,600 @@
+﻿<Window x:Class="XwaWorkspaceViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XwaWorkspaceViewer"
+        mc:Ignorable="d"
+        Title="Xwa Workspace Viewer"
+        Width="1200"
+        Height="600"
+        UseLayoutRounding="True">
+    <Window.Resources>
+        <local:ViewModel x:Key="ViewModel" />
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Source="{StaticResource ViewModel}" />
+    </Window.DataContext>
+    <DockPanel>
+        <ToolBarPanel DockPanel.Dock="Top">
+            <ToolBar ToolBarTray.IsLocked="True">
+                <Button x:Name="openButton"
+                        Content="Open..."
+                        Click="OpenButton_Click" />
+            </ToolBar>
+        </ToolBarPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock Text="{Binding WorkingDirectory}" />
+        </StatusBar>
+        <TabControl>
+            <TabItem Header="Specs">
+                <ListView ItemsSource="{Binding Specs}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Width="200"
+                                            DisplayMemberBinding="{Binding Ship.CraftName}"
+                                            Header="Craft Name" />
+                            <GridViewColumn Width="100"
+                                            DisplayMemberBinding="{Binding Ship.CraftType}"
+                                            Header="Craft Type" />
+                            <GridViewColumn Width="80"
+                                            DisplayMemberBinding="{Binding Ship.Flyable}"
+                                            Header="Flyable" />
+                            <GridViewColumn Width="80"
+                                            DisplayMemberBinding="{Binding Ship.Known}"
+                                            Header="Known" />
+                            <GridViewColumn Width="80"
+                                            DisplayMemberBinding="{Binding Ship.Skirmish}"
+                                            Header="Skirmish" />
+                            <GridViewColumn Width="150"
+                                            DisplayMemberBinding="{Binding Ship.MapIconRect}"
+                                            Header="Map Icon Rect" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Desc">
+                <ListView ItemsSource="{Binding Specs}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Width="250"
+                                            DisplayMemberBinding="{Binding Desc.CraftLongName}"
+                                            Header="Craft Long Name" />
+                            <GridViewColumn Width="100"
+                                            DisplayMemberBinding="{Binding Desc.CraftAbbreviation}"
+                                            Header="Craft Abbreviation" />
+                            <GridViewColumn Width="200"
+                                            DisplayMemberBinding="{Binding Desc.Manufacturer}"
+                                            Header="Manufacturer" />
+                            <GridViewColumn Width="100"
+                                            DisplayMemberBinding="{Binding Desc.Side}"
+                                            Header="Side" />
+                            <GridViewColumn Width="150"
+                                            Header="Crew">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Desc.Crew}"
+                                                   TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="500"
+                                            Header="Description">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Desc.Description}"
+                                                   TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Craft Strings">
+                <ListView ItemsSource="{Binding CraftStrings}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Width="150"
+                                            DisplayMemberBinding="{Binding GenderKey}"
+                                            Header="Gender Key" />
+                            <GridViewColumn Width="100"
+                                            DisplayMemberBinding="{Binding CraftGender}"
+                                            Header="Craft Gender" />
+                            <GridViewColumn Width="200"
+                                            DisplayMemberBinding="{Binding GenderCraftName}"
+                                            Header="Gender Craft Name" />
+                            <GridViewColumn Width="150"
+                                            DisplayMemberBinding="{Binding PluralNameKey}"
+                                            Header="Plural Name Key" />
+                            <GridViewColumn Width="200"
+                                            DisplayMemberBinding="{Binding CraftPluralName}"
+                                            Header="Craft Plural Name" />
+                            <GridViewColumn Width="150"
+                                            DisplayMemberBinding="{Binding ShortNameKey}"
+                                            Header="Short Name Key" />
+                            <GridViewColumn Width="100"
+                                            DisplayMemberBinding="{Binding CraftShortName}"
+                                            Header="Craft Short Name" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Species">
+                <ListView ItemsSource="{Binding Species}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Species}"
+                                                Header="Species" />
+                                <GridViewColumn Width="150"
+                                                Header="Name"
+                                                DisplayMemberBinding="{Binding Species, Converter={x:Static local:ExeModelIndexConverter.Default}}" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Objects">
+                <ListView ItemsSource="{Binding Objects}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                            <Binding Path="Object.DataIndex1" />
+                                            <Binding Path="Object.DataIndex2" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.EnableOptions}"
+                                                Header="EnableOptions" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.RessourceOptions}"
+                                                Header="RessourceOptions" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.ObjectCategory, StringFormat=\{0:G\}}"
+                                                Header="ObjectCategory" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.ShipCategory, StringFormat=\{0:G\}}"
+                                                Header="ShipCategory" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.ObjectSize}"
+                                                Header="ObjectSize" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.GameOptions}"
+                                                Header="GameOptions" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.CraftIndex}"
+                                                Header="CraftIndex" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.DataIndex1}"
+                                                Header="DataIndex1" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Object.DataIndex2}"
+                                                Header="DataIndex2" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Crafts">
+                <ListView ItemsSource="{Binding Crafts}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                            <Binding Path="Object.DataIndex1" />
+                                            <Binding Path="Object.DataIndex2" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Score}"
+                                                Header="Score" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.PromoPoints}"
+                                                Header="PromoPoints" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.HasHyperdrive}"
+                                                Header="HasHyperdrive" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.GunConvergence, StringFormat=\{0:G\}}"
+                                                Header="GunConvergence" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.HasShieldGenerator}"
+                                                Header="HasShieldGenerator" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.ShieldStrength}"
+                                                Header="ShieldStrength" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.AIHitsTakenToEvade}"
+                                                Header="AIHitsTakenToEvade" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.HullStrength}"
+                                                Header="HullStrength" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.CriticalDamageThreshold}"
+                                                Header="CriticalDamageThreshold" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.SystemStrength}"
+                                                Header="SystemStrength" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.EngineThrottle}"
+                                                Header="EngineThrottle" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Speed}"
+                                                Header="Speed" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Acceleration}"
+                                                Header="Acceleration" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Deceleration}"
+                                                Header="Deceleration" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Yaw}"
+                                                Header="Yaw" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.YawPercent}"
+                                                Header="YawPercent" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Roll}"
+                                                Header="Roll" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.Pitch}"
+                                                Header="Pitch" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.DestroyRotation}"
+                                                Header="DestroyRotation" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.DriftSpeed}"
+                                                Header="DriftSpeed" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Craft.CockpitFile}"
+                                                Header="CockpitFile" />
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                            <Binding Path="Object.DataIndex1" />
+                                            <Binding Path="Object.DataIndex2" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Crafts Dock/Hangar">
+                <ListView ItemsSource="{Binding Crafts}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="150"
+                                            Header="Name">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                        <Binding Path="Object.DataIndex1" />
+                                        <Binding Path="Object.DataIndex2" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.DockPositionY}"
+                                            Header="DockPositionY" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.DockFromSmallPositionZ}"
+                                            Header="DockFromSmallPositionZ" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.DockFromBigPositionZ}"
+                                            Header="DockFromBigPositionZ" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.DockToSmallPositionZ}"
+                                            Header="DockToSmallPositionZ" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.DockToBigPositionZ}"
+                                            Header="DockToBigPositionZ" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.InsideHangarX}"
+                                            Header="InsideHangarX" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.InsideHangarZ}"
+                                            Header="InsideHangarZ" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.InsideHangarY}"
+                                            Header="InsideHangarY" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.OutsideHangarX}"
+                                            Header="OutsideHangarX" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.OutsideHangarZ}"
+                                            Header="OutsideHangarZ" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.OutsideHangarY}"
+                                            Header="OutsideHangarY" />
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Width="150"
+                                            Header="Name">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                        <Binding Path="Object.DataIndex1" />
+                                        <Binding Path="Object.DataIndex2" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Crafts Weapons">
+                <ListView ItemsSource="{Binding Crafts}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="150"
+                                            Header="Name">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                        <Binding Path="Object.DataIndex1" />
+                                        <Binding Path="Object.DataIndex2" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Header="Lasers">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ListView ItemsSource="{Binding Craft.Lasers}"
+                                                  SelectionMode="Single">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn DisplayMemberBinding="{Binding TypeId}"
+                                                                    Header="TypeId" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding TypeId, Converter={x:Static local:ExeModelIndexConverter.Default}}"
+                                                                    Header="TypeName" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding StartRack}"
+                                                                    Header="StartRack" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding EndRack}"
+                                                                    Header="EndRack" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding LinkCode}"
+                                                                    Header="LinkCode" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding Sequence}"
+                                                                    Header="Sequence" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding Range}"
+                                                                    Header="Range" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding FireRatio}"
+                                                                    Header="FireRatio" />
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Warheads">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ListView ItemsSource="{Binding Craft.Warheads}"
+                                                  SelectionMode="Single">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn DisplayMemberBinding="{Binding TypeId}"
+                                                                    Header="TypeId" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding TypeId, Converter={x:Static local:ExeModelIndexConverter.Default}}"
+                                                                    Header="TypeName" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding StartRack}"
+                                                                    Header="StartRack" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding EndRack}"
+                                                                    Header="EndRack" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding LinkCode}"
+                                                                    Header="LinkCode" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding Capacity}"
+                                                                    Header="Capacity" />
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.CounterMeasuresCount}"
+                                            Header="CounterMeasuresCount" />
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Width="150"
+                                            Header="Name">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                        <Binding Path="Object.DataIndex1" />
+                                        <Binding Path="Object.DataIndex2" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Crafts PoV">
+                <ListView ItemsSource="{Binding Crafts}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="150"
+                                            Header="Name">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                        <Binding Path="Object.DataIndex1" />
+                                        <Binding Path="Object.DataIndex2" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.CockpitDeltaY}"
+                                            Header="CockpitDeltaY" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.CockpitPositionX}"
+                                            Header="CockpitPositionX" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.CockpitPositionY}"
+                                            Header="CockpitPositionY" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Craft.CockpitPositionZ}"
+                                            Header="CockpitPositionZ" />
+                            <GridViewColumn Header="Turrets">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ListView ItemsSource="{Binding Craft.Turrets}"
+                                                  SelectionMode="Single">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn DisplayMemberBinding="{Binding PositionX}"
+                                                                    Header="PositionX" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding PositionY}"
+                                                                    Header="PositionY" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding PositionZ}"
+                                                                    Header="PositionZ" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding OrientationX}"
+                                                                    Header="OrientationX" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding OrientationY}"
+                                                                    Header="OrientationY" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding ModelId}"
+                                                                    Header="ModelId" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding ModelId, Converter={x:Static local:ExeModelIndexConverter.Default}}"
+                                                                    Header="ModelName" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding ArcX}"
+                                                                    Header="ArcX" />
+                                                    <GridViewColumn DisplayMemberBinding="{Binding ArcY}"
+                                                                    Header="ArcY" />
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="50"
+                                            DisplayMemberBinding="{Binding Id}"
+                                            Header="ID" />
+                            <GridViewColumn Width="150"
+                                            Header="Name">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                        <Binding Path="Object.DataIndex1" />
+                                        <Binding Path="Object.DataIndex2" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Weapons">
+                <ListView ItemsSource="{Binding Weapons}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="150"
+                                                Header="Name"
+                                                DisplayMemberBinding="{Binding Id, Converter={x:Static local:ExeModelIndexConverter.Default}}" />
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.Power}"
+                                                Header="Power" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.Speed}"
+                                                Header="Speed" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.DurationIntegerPart}"
+                                                Header="DurationIntegerPart" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.DurationDecimalPart}"
+                                                Header="DurationDecimalPart" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.HitboxSpan}"
+                                                Header="HitboxSpan" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.Behavior}"
+                                                Header="Behavior" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.Score}"
+                                                Header="Score" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Weapon.Side}"
+                                                Header="Side" />
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Weapon.SideModel}"
+                                                Header="SideModel ID" />
+                                <GridViewColumn Width="150"
+                                                Header="SideModel Name"
+                                                DisplayMemberBinding="{Binding Weapon.SideModel, Converter={x:Static local:ExeModelIndexConverter.Default}}" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Spacecrafts">
+                <ListView ItemsSource="{Binding FlightModelSpacecraft}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="300"
+                                                DisplayMemberBinding="{Binding Value}"
+                                                Header="Value" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Equipments">
+                <ListView ItemsSource="{Binding FlightModelEquipment}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="300"
+                                                DisplayMemberBinding="{Binding Value}"
+                                                Header="Value" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

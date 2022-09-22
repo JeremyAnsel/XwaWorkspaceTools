@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <UseWPF>true</UseWPF>
+    <Version>1.0.0</Version>
+    <Company>Jérémy Ansel</Company>
+    <Copyright>Copyright © 2022 Jérémy Ansel</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FolderBrowserForWPF" Version="1.2.0" />
+    <PackageReference Include="JeremyAnsel.Xwa.Workspace" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>

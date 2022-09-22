@@ -1,0 +1,167 @@
+﻿<Window x:Class="XwaShpInstaller.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XwaShpInstaller"
+        mc:Ignorable="d"
+        Title="Xwa SHP Installer"
+        Width="1000"
+        Height="500"
+        UseLayoutRounding="True">
+    <Window.Resources>
+        <local:ViewModel x:Key="ViewModel" />
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Source="{StaticResource ViewModel}" />
+    </Window.DataContext>
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock Text="XWA directory: " />
+            <TextBlock Text="{Binding WorkingDirectory}" />
+        </StatusBar>
+        <ToolBar DockPanel.Dock="Top"
+                 ToolBarTray.IsLocked="True">
+            <Button x:Name="openShpFile"
+                    Content="Open SHP file..."
+                    Click="OpenShpFile_Click" />
+            <Button x:Name="setDefaultSelection"
+                    Content="Set default indices"
+                    Click="SetDefaultSelection_Click" />
+            <Separator />
+            <Button x:Name="installShpFile"
+                    Content="Install SHP file..."
+                    Click="InstallShpFile_Click" />
+        </ToolBar>
+        <StatusBar DockPanel.Dock="Top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="0"
+                           Grid.Row="0"
+                           Text="Object Index: " />
+                <TextBlock Grid.Column="1"
+                           Grid.Row="0"
+                           Text="{Binding ShpFile.ObjectIndex}" />
+                <TextBlock Grid.Column="1"
+                           Grid.Row="1"
+                           Text="{Binding ShpFile.CraftLongName}" />
+                <TextBlock Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Grid.Row="2"
+                           Text="To install a SHP file: Open the SHP file. Select a species index, an object index and a craft index. Then click on Install." />
+            </Grid>
+        </StatusBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <GridSplitter Grid.Column="1"
+                          Width="5"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Stretch" />
+            <GridSplitter Grid.Column="3"
+                          Width="5"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Stretch" />
+            <DockPanel Grid.Column="0">
+                <StackPanel DockPanel.Dock="Top"
+                            Orientation="Horizontal">
+                    <TextBlock Text="SPECIES index: " />
+                    <TextBox Width="150"
+                             Text="{Binding ElementName=speciesList, Path=SelectedIndex, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <ListView x:Name="speciesList"
+                          ItemsSource="{Binding Species}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="100"
+                                                DisplayMemberBinding="{Binding ModelName}"
+                                                Header="Name" />
+                                <GridViewColumn Width="200"
+                                                DisplayMemberBinding="{Binding SpecDesc.CraftLongName}"
+                                                Header="Long Name" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </DockPanel>
+            <DockPanel Grid.Column="2">
+                <StackPanel DockPanel.Dock="Top"
+                            Orientation="Horizontal">
+                    <TextBlock Text="OBJECT index: " />
+                    <TextBox Width="150"
+                             Text="{Binding ElementName=objectsList, Path=SelectedIndex, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <ListView x:Name="objectsList"
+                          ItemsSource="{Binding Objects}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="150"
+                                                DisplayMemberBinding="{Binding ModelName}"
+                                                Header="Name" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </DockPanel>
+            <DockPanel Grid.Column="4">
+                <StackPanel DockPanel.Dock="Top"
+                            Orientation="Horizontal">
+                    <TextBlock Text="CRAFT index: " />
+                    <TextBox Width="150"
+                             Text="{Binding ElementName=craftsList, Path=SelectedIndex, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <ListView x:Name="craftsList"
+                          ItemsSource="{Binding Crafts}"
+                          IsSynchronizedWithCurrentItem="True"
+                          SelectionMode="Single"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="150"
+                                                DisplayMemberBinding="{Binding ModelName}"
+                                                Header="Name" />
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</Window>

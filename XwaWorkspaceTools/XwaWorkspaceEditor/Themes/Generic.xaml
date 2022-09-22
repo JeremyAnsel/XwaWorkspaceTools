@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:XwaWorkspaceEditor">
+
+    <Style TargetType="{x:Type local:EnumComboBox}"
+           BasedOn="{StaticResource {x:Type ComboBox}}">
+    </Style>
+
+    <Style TargetType="{x:Type local:EnumFlagsComboBox}"
+           BasedOn="{StaticResource {x:Type ComboBox}}">
+    </Style>
+
+</ResourceDictionary>

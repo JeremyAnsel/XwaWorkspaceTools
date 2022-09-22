@@ -1,0 +1,2050 @@
+﻿<Window x:Class="XwaWorkspaceEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XwaWorkspaceEditor"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:ws="clr-namespace:JeremyAnsel.Xwa.Workspace;assembly=JeremyAnsel.Xwa.Workspace"
+        mc:Ignorable="d"
+        Title="Xwa Workspace Editor"
+        Width="1200"
+        Height="700"
+        UseLayoutRounding="True"
+        x:Name="window">
+    <Window.Resources>
+        <local:ViewModel x:Key="ViewModel" />
+        <Style TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError"
+                         Value="True">
+                    <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Source="{StaticResource ViewModel}" />
+    </Window.DataContext>
+    <DockPanel>
+        <ToolBarPanel DockPanel.Dock="Top">
+            <ToolBar ToolBarTray.IsLocked="True">
+                <Button x:Name="openButton"
+                        Content="Open..."
+                        Click="OpenButton_Click" />
+                <Button x:Name="saveButton"
+                        Content="Save"
+                        Click="SaveButton_Click" />
+            </ToolBar>
+        </ToolBarPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock Text="{Binding WorkingDirectory}" />
+        </StatusBar>
+        <TabControl x:Name="sectionsTabControl"
+                    SelectionChanged="SectionsTabControl_SelectionChanged">
+            <TabItem Header="Specs">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="specsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding ShipLists}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID"
+                                                Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <Binding>
+                                                        <Binding.Converter>
+                                                            <local:ItemIndexConverter DataContext="{Binding Source={x:Reference specsListView}, Path=ItemsSource}"
+                                                                                      StartIndex="1" />
+                                                        </Binding.Converter>
+                                                    </Binding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="200"
+                                                DisplayMemberBinding="{Binding CraftName}"
+                                                Header="Craft Name" />
+                                <GridViewColumn Width="100"
+                                                DisplayMemberBinding="{Binding CraftType}"
+                                                Header="Craft Type" />
+                                <GridViewColumn Width="80"
+                                                DisplayMemberBinding="{Binding Flyable}"
+                                                Header="Flyable" />
+                                <GridViewColumn Width="80"
+                                                DisplayMemberBinding="{Binding Known}"
+                                                Header="Known" />
+                                <GridViewColumn Width="80"
+                                                DisplayMemberBinding="{Binding Skirmish}"
+                                                Header="Skirmish" />
+                                <GridViewColumn Width="150"
+                                                DisplayMemberBinding="{Binding MapIconRect}"
+                                                Header="Map Icon Rect" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Add New"
+                                        Command="{Binding AddNewShipListEntryCommand}"
+                                        CommandParameter="{x:Reference specsListView}" />
+                                <Separator />
+                                <Button Content="Clear"
+                                        Command="{Binding ClearShipListEntryCommand}"
+                                        CommandParameter="{x:Reference specsListView}" />
+                                <Separator />
+                                <Button Content="Remove"
+                                        Command="{Binding RemoveShipListEntryCommand}"
+                                        CommandParameter="{x:Reference specsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding ShipLists/}">
+                                <TextBlock Text="Craft Name:" />
+                                <TextBox Text="{Binding CraftName, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Craft Type:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaShipListCraftType}"
+                                                    Text="{Binding CraftType}" />
+                                <TextBlock />
+                                <TextBlock Text="Flyable:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaShipListFlyableOption}"
+                                                    Text="{Binding Flyable}" />
+                                <TextBlock />
+                                <TextBlock Text="Known:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaShipListKnownOption}"
+                                                    Text="{Binding Known}" />
+                                <TextBlock />
+                                <TextBlock Text="Skirmish:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaShipListSkirmishOption}"
+                                                    SelectedItem="{Binding Skirmish}" />
+                                <TextBlock />
+                                <TextBlock Text="Map Icon Rect:" />
+                                <TextBlock Text="{Binding MapIconRect}" />
+                                <TextBlock />
+                                <TextBlock Text="Map Icon Rect Left:" />
+                                <TextBox Text="{Binding MapIconRectLeft, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Map Icon Rect Top:" />
+                                <TextBox Text="{Binding MapIconRectTop, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Map Icon Rect Right:" />
+                                <TextBox Text="{Binding MapIconRectRight, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Map Icon Rect Bottom:" />
+                                <TextBox Text="{Binding MapIconRectBottom, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Desc">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="descListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding SpecDescs}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID"
+                                                Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <Binding>
+                                                        <Binding.Converter>
+                                                            <local:ItemIndexConverter DataContext="{Binding Source={x:Reference descListView}, Path=ItemsSource}"
+                                                                                      StartIndex="1" />
+                                                        </Binding.Converter>
+                                                    </Binding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="250"
+                                                DisplayMemberBinding="{Binding CraftLongName}"
+                                                Header="Craft Long Name" />
+                                <GridViewColumn Width="100"
+                                                DisplayMemberBinding="{Binding CraftAbbreviation}"
+                                                Header="Craft Abbreviation" />
+                                <GridViewColumn Width="200"
+                                                DisplayMemberBinding="{Binding Manufacturer}"
+                                                Header="Manufacturer" />
+                                <GridViewColumn Width="100"
+                                                DisplayMemberBinding="{Binding Side}"
+                                                Header="Side" />
+                                <GridViewColumn Width="150"
+                                                Header="Crew">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Crew}"
+                                                       TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="500"
+                                                Header="Description">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Description}"
+                                                       TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Add New"
+                                        Command="{Binding AddNewSpecDescEntryCommand}"
+                                        CommandParameter="{x:Reference descListView}" />
+                                <Separator />
+                                <Button Content="Clear"
+                                        Command="{Binding ClearSpecDescEntryCommand}"
+                                        CommandParameter="{x:Reference descListView}" />
+                                <Separator />
+                                <Button Content="Remove"
+                                        Command="{Binding RemoveSpecDescEntryCommand}"
+                                        CommandParameter="{x:Reference descListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding SpecDescs/}">
+                                <TextBlock Text="Craft Long Name:" />
+                                <TextBox Text="{Binding CraftLongName, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Craft Abbreviation:" />
+                                <TextBlock Text="{Binding CraftAbbreviation}"
+                                           TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Manufacturer:" />
+                                <TextBox Text="{Binding Manufacturer, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Side:" />
+                                <TextBox Text="{Binding Side, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Crew:" />
+                                <TextBox Text="{Binding Crew, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Description:" />
+                                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Craft Strings">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="craftStringsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding CraftStrings}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID"
+                                                Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <Binding>
+                                                        <Binding.Converter>
+                                                            <local:ItemIndexConverter DataContext="{Binding Source={x:Reference craftStringsListView}, Path=ItemsSource}"
+                                                                                      StartIndex="1" />
+                                                        </Binding.Converter>
+                                                    </Binding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="150"
+                                                DisplayMemberBinding="{Binding GenderKey}"
+                                                Header="Gender Key" />
+                                <GridViewColumn Width="100"
+                                                DisplayMemberBinding="{Binding CraftGender}"
+                                                Header="Craft Gender" />
+                                <GridViewColumn Width="200"
+                                                DisplayMemberBinding="{Binding GenderCraftName}"
+                                                Header="Gender Craft Name" />
+                                <GridViewColumn Width="150"
+                                                DisplayMemberBinding="{Binding PluralNameKey}"
+                                                Header="Plural Name Key" />
+                                <GridViewColumn Width="200"
+                                                DisplayMemberBinding="{Binding CraftPluralName}"
+                                                Header="Craft Plural Name" />
+                                <GridViewColumn Width="150"
+                                                DisplayMemberBinding="{Binding ShortNameKey}"
+                                                Header="Short Name Key" />
+                                <GridViewColumn Width="100"
+                                                DisplayMemberBinding="{Binding CraftShortName}"
+                                                Header="Craft Short Name" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearCraftStringsEntryCommand}"
+                                        CommandParameter="{x:Reference craftStringsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding CraftStrings/}">
+                                <TextBlock Text="Gender Key:" />
+                                <TextBox Text="{Binding GenderKey, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Craft Gender:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaCraftGender}"
+                                                    Text="{Binding CraftGender}" />
+                                <TextBlock />
+                                <TextBlock Text="Gender Craft Name:" />
+                                <TextBox Text="{Binding GenderCraftName, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Plural Name Key:" />
+                                <TextBox Text="{Binding PluralNameKey, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Craft Plural Name:" />
+                                <TextBox Text="{Binding CraftPluralName, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Short Name Key:" />
+                                <TextBox Text="{Binding ShortNameKey, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Craft Short Name:" />
+                                <TextBox Text="{Binding CraftShortName, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Species">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="speciesListView"
+                              ItemsSource="{Binding Species}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Header="ID"
+                                                    Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <Binding>
+                                                            <Binding.Converter>
+                                                                <local:ItemIndexConverter DataContext="{Binding Source={x:Reference speciesListView}, Path=ItemsSource}"
+                                                                                          StartIndex="0" />
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="50"
+                                                    DisplayMemberBinding="{Binding Value}"
+                                                    Header="Species" />
+                                    <GridViewColumn Width="150"
+                                                    Header="Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                <Binding Path="Value" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearSpeciesEntryCommand}"
+                                        CommandParameter="{x:Reference speciesListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Species/}">
+                                <TextBlock Text="Species:" />
+                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Name:" />
+                                <TextBlock TextWrapping="Wrap">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                            <Binding Path="Value" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Objects">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="objectsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding Objects}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Width="150"
+                                                    Header="Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                                <Binding Path="DataIndex1" />
+                                                <Binding Path="DataIndex2" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="ID"
+                                                    Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <Binding>
+                                                            <Binding.Converter>
+                                                                <local:ItemIndexConverter DataContext="{Binding Source={x:Reference objectsListView}, Path=ItemsSource}"
+                                                                                          StartIndex="0" />
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding EnableOptions}"
+                                                    Header="EnableOptions" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding RessourceOptions}"
+                                                    Header="RessourceOptions" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding ObjectCategory, StringFormat=\{0:G\}}"
+                                                    Header="ObjectCategory" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding ShipCategory, StringFormat=\{0:G\}}"
+                                                    Header="ShipCategory" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding ObjectSize}"
+                                                    Header="ObjectSize" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding GameOptions}"
+                                                    Header="GameOptions" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding CraftIndex}"
+                                                    Header="CraftIndex" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding DataIndex1}"
+                                                    Header="DataIndex1" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding DataIndex2}"
+                                                    Header="DataIndex2" />
+                                    <GridViewColumn Header="ID"
+                                                    Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <Binding>
+                                                            <Binding.Converter>
+                                                                <local:ItemIndexConverter DataContext="{Binding Source={x:Reference objectsListView}, Path=ItemsSource}"
+                                                                                          StartIndex="0" />
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="150"
+                                                    Header="Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                                <Binding Path="DataIndex1" />
+                                                <Binding Path="DataIndex2" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearObjectEntryCommand}"
+                                        CommandParameter="{x:Reference objectsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Objects/}">
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                            <Binding Path="DataIndex1" />
+                                            <Binding Path="DataIndex2" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock />
+                                <TextBlock Text="Enable Options:" />
+                                <local:EnumFlagsComboBox EnumType="{x:Type ws:XwaExeObjectEnableOptions}"
+                                                         Text="{Binding EnableOptions}" />
+                                <TextBlock />
+                                <TextBlock Text="Ressource Options:" />
+                                <local:EnumFlagsComboBox EnumType="{x:Type ws:XwaExeObjectRessourceOptions}"
+                                                         Text="{Binding RessourceOptions}" />
+                                <TextBlock />
+                                <TextBlock Text="Object Category:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaObjectCategory}"
+                                                    Text="{Binding ObjectCategory}" />
+                                <TextBlock />
+                                <TextBlock Text="Ship Category:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaShipCategory}"
+                                                    Text="{Binding ShipCategory}" />
+                                <TextBlock />
+                                <TextBlock Text="Object Size:" />
+                                <TextBox Text="{Binding ObjectSize, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Game Options:" />
+                                <local:EnumFlagsComboBox EnumType="{x:Type ws:XwaExeObjectGameOptions}"
+                                                         Text="{Binding GameOptions}" />
+                                <TextBlock />
+                                <TextBlock Text="Craft Index:" />
+                                <TextBox Text="{Binding CraftIndex, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Data Index 1:" />
+                                <TextBox Text="{Binding DataIndex1, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Data Index 2:" />
+                                <TextBox Text="{Binding DataIndex2, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeObjectNameConverter.Default}">
+                                            <Binding Path="DataIndex1" />
+                                            <Binding Path="DataIndex2" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Crafts">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="craftsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding Crafts}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Width="150"
+                                                    Header="Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                                <Binding Path="Id" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="50"
+                                                    DisplayMemberBinding="{Binding Id}"
+                                                    Header="ID" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Score}"
+                                                    Header="Score" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding PromoPoints}"
+                                                    Header="PromoPoints" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding HasHyperdrive}"
+                                                    Header="HasHyperdrive" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding GunConvergence, StringFormat=\{0:G\}}"
+                                                    Header="GunConvergence" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding HasShieldGenerator}"
+                                                    Header="HasShieldGenerator" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding ShieldStrength}"
+                                                    Header="ShieldStrength" />
+                                    <GridViewColumn Header="Shield SBD">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:SbdConverter.Default}"
+                                                          StringFormat="G">
+                                                <Binding Path="ShieldStrength" />
+                                                <Binding Path="Id" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding AIHitsTakenToEvade}"
+                                                    Header="AIHitsTakenToEvade" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding HullStrength}"
+                                                    Header="HullStrength" />
+                                    <GridViewColumn Header="Hull RU">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:RuConverter.Default}"
+                                                          StringFormat="G">
+                                                <Binding Path="HullStrength" />
+                                                <Binding Path="Id" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding CriticalDamageThreshold}"
+                                                    Header="CriticalDamageThreshold" />
+                                    <GridViewColumn Header="Threshold RU">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:RuConverter.Default}"
+                                                          StringFormat="G">
+                                                <Binding Path="CriticalDamageThreshold" />
+                                                <Binding Path="Id" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding SystemStrength}"
+                                                    Header="SystemStrength" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding EngineThrottle}"
+                                                    Header="EngineThrottle" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Speed}"
+                                                    Header="Speed" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Speed, Converter={x:Static local:MgltConverter.Default}, StringFormat=G}"
+                                                    Header="MGLT" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Acceleration}"
+                                                    Header="Acceleration" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Acceleration, Converter={x:Static local:MgltConverter.Default}, StringFormat=G}"
+                                                    Header="MGLT/s" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Deceleration}"
+                                                    Header="Deceleration" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Deceleration, Converter={x:Static local:MgltConverter.Default}, StringFormat=G}"
+                                                    Header="MGLT/s" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Yaw}"
+                                                    Header="Yaw" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding YawPercent}"
+                                                    Header="YawPercent" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Roll}"
+                                                    Header="Roll" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Pitch}"
+                                                    Header="Pitch" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding DestroyRotation}"
+                                                    Header="DestroyRotation" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding DriftSpeed}"
+                                                    Header="DriftSpeed" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding CockpitFile}"
+                                                    Header="CockpitFile" />
+                                    <GridViewColumn Width="50"
+                                                    DisplayMemberBinding="{Binding Id}"
+                                                    Header="ID" />
+                                    <GridViewColumn Width="150"
+                                                    Header="Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                                <Binding Path="Id" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearCraftEntryCommand}"
+                                        CommandParameter="{x:Reference craftsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Crafts/}">
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock />
+                                <TextBlock Text="Score:" />
+                                <TextBox Text="{Binding Score, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Promo Points:" />
+                                <TextBox Text="{Binding PromoPoints, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Has Hyperdrive:" />
+                                <CheckBox IsChecked="{Binding HasHyperdrive}" />
+                                <TextBlock />
+                                <TextBlock Text="Gun Convergence:" />
+                                <local:EnumComboBox EnumType="{x:Type ws:XwaGunConvergence}"
+                                                    Text="{Binding GunConvergence}" />
+                                <TextBlock />
+                                <TextBlock Text="Has Shield Generator:" />
+                                <CheckBox IsChecked="{Binding HasShieldGenerator}" />
+                                <TextBlock />
+                                <TextBlock Text="Shield Strength:" />
+                                <TextBox Text="{Binding ShieldStrength, UpdateSourceTrigger=PropertyChanged}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="SBD: " />
+                                    <TextBox>
+                                        <TextBox.Text>
+                                            <MultiBinding Converter="{x:Static local:SbdConverter.Default}"
+                                                          StringFormat="G"
+                                                          UpdateSourceTrigger="LostFocus">
+                                                <Binding Path="ShieldStrength" />
+                                                <Binding Path="Id"
+                                                         Mode="OneWay" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window"
+                                                         Mode="OneWay" />
+                                            </MultiBinding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="AI Hits Taken To Evade:" />
+                                <TextBox Text="{Binding AIHitsTakenToEvade, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Hull Strength:" />
+                                <TextBox Text="{Binding HullStrength, UpdateSourceTrigger=PropertyChanged}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="RU: " />
+                                    <TextBox>
+                                        <TextBox.Text>
+                                            <MultiBinding Converter="{x:Static local:RuConverter.Default}"
+                                                          StringFormat="G"
+                                                          UpdateSourceTrigger="LostFocus">
+                                                <Binding Path="HullStrength" />
+                                                <Binding Path="Id"
+                                                         Mode="OneWay" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window"
+                                                         Mode="OneWay" />
+                                            </MultiBinding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="Critical Damage Threshold:" />
+                                <TextBox Text="{Binding CriticalDamageThreshold, UpdateSourceTrigger=PropertyChanged}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="RU: " />
+                                    <TextBox>
+                                        <TextBox.Text>
+                                            <MultiBinding Converter="{x:Static local:RuConverter.Default}"
+                                                          StringFormat="G"
+                                                          UpdateSourceTrigger="LostFocus">
+                                                <Binding Path="CriticalDamageThreshold" />
+                                                <Binding Path="Id"
+                                                         Mode="OneWay" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window"
+                                                         Mode="OneWay" />
+                                            </MultiBinding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="System Strength:" />
+                                <TextBox Text="{Binding SystemStrength, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Engine Throttle:" />
+                                <TextBox Text="{Binding EngineThrottle, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Speed:" />
+                                <TextBox Text="{Binding Speed, UpdateSourceTrigger=PropertyChanged}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="MGLT: " />
+                                    <TextBox Text="{Binding Speed, Converter={x:Static local:MgltConverter.Default}, StringFormat=G, UpdateSourceTrigger=LostFocus}"
+                                             TextWrapping="Wrap" />
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="Acceleration:" />
+                                <TextBox Text="{Binding Acceleration, UpdateSourceTrigger=PropertyChanged}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="MGLT/s: " />
+                                    <TextBox Text="{Binding Acceleration, Converter={x:Static local:MgltConverter.Default}, StringFormat=G, UpdateSourceTrigger=LostFocus}"
+                                             TextWrapping="Wrap" />
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="Deceleration:" />
+                                <TextBox Text="{Binding Deceleration, UpdateSourceTrigger=PropertyChanged}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="MGLT/s: " />
+                                    <TextBox Text="{Binding Deceleration, Converter={x:Static local:MgltConverter.Default}, StringFormat=G, UpdateSourceTrigger=LostFocus}"
+                                             TextWrapping="Wrap" />
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="Yaw:" />
+                                <TextBox Text="{Binding Yaw, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Yaw Percent:" />
+                                <TextBox Text="{Binding YawPercent, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Roll:" />
+                                <TextBox Text="{Binding Roll, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Pitch:" />
+                                <TextBox Text="{Binding Pitch, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Destroy Rotation:" />
+                                <TextBox Text="{Binding DestroyRotation, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Drift Speed:" />
+                                <TextBox Text="{Binding DriftSpeed, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Cockpit File:" />
+                                <TextBox Text="{Binding CockpitFile, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Crafts Dock/Hangar">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="craftsDockHangarListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding Crafts}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn DisplayMemberBinding="{Binding DockPositionY}"
+                                                Header="DockPositionY" />
+                                <GridViewColumn DisplayMemberBinding="{Binding DockFromSmallPositionZ}"
+                                                Header="DockFromSmallPositionZ" />
+                                <GridViewColumn DisplayMemberBinding="{Binding DockFromBigPositionZ}"
+                                                Header="DockFromBigPositionZ" />
+                                <GridViewColumn DisplayMemberBinding="{Binding DockToSmallPositionZ}"
+                                                Header="DockToSmallPositionZ" />
+                                <GridViewColumn DisplayMemberBinding="{Binding DockToBigPositionZ}"
+                                                Header="DockToBigPositionZ" />
+                                <GridViewColumn DisplayMemberBinding="{Binding InsideHangarX}"
+                                                Header="InsideHangarX" />
+                                <GridViewColumn DisplayMemberBinding="{Binding InsideHangarZ}"
+                                                Header="InsideHangarZ" />
+                                <GridViewColumn DisplayMemberBinding="{Binding InsideHangarY}"
+                                                Header="InsideHangarY" />
+                                <GridViewColumn DisplayMemberBinding="{Binding OutsideHangarX}"
+                                                Header="OutsideHangarX" />
+                                <GridViewColumn DisplayMemberBinding="{Binding OutsideHangarZ}"
+                                                Header="OutsideHangarZ" />
+                                <GridViewColumn DisplayMemberBinding="{Binding OutsideHangarY}"
+                                                Header="OutsideHangarY" />
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearCraftEntryCommand}"
+                                        CommandParameter="{x:Reference craftsDockHangarListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Crafts/}">
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock />
+                                <TextBlock Text="Dock Position Y:" />
+                                <TextBox Text="{Binding DockPositionY, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Dock From Small Position Z:" />
+                                <TextBox Text="{Binding DockFromSmallPositionZ, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Dock From Big Position Z:" />
+                                <TextBox Text="{Binding DockFromBigPositionZ, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Dock To Small Position Z:" />
+                                <TextBox Text="{Binding DockToSmallPositionZ, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Dock To Big Position Z:" />
+                                <TextBox Text="{Binding DockToBigPositionZ, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Inside Hangar X:" />
+                                <TextBox Text="{Binding InsideHangarX, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Inside Hangar Z:" />
+                                <TextBox Text="{Binding InsideHangarZ, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Inside Hangar Y:" />
+                                <TextBox Text="{Binding InsideHangarY, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Outside Hangar X:" />
+                                <TextBox Text="{Binding OutsideHangarX, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Outside Hangar Z:" />
+                                <TextBox Text="{Binding OutsideHangarZ, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Outside Hangar Y:" />
+                                <TextBox Text="{Binding OutsideHangarY, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Crafts Weapons">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="craftsWeaponsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding Crafts}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Header="Lasers">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ListView ItemsSource="{Binding Lasers}"
+                                                      SelectionMode="Single">
+                                                <ListView.View>
+                                                    <GridView>
+                                                        <GridViewColumn DisplayMemberBinding="{Binding TypeId}"
+                                                                        Header="TypeId" />
+                                                        <GridViewColumn Header="TypeName">
+                                                            <GridViewColumn.DisplayMemberBinding>
+                                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                                    <Binding Path="TypeId" />
+                                                                    <Binding Path="DataContext.Objects"
+                                                                             ElementName="window" />
+                                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                                             ElementName="window" />
+                                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                                             ElementName="window" />
+                                                                </MultiBinding>
+                                                            </GridViewColumn.DisplayMemberBinding>
+                                                        </GridViewColumn>
+                                                        <GridViewColumn DisplayMemberBinding="{Binding StartRack}"
+                                                                        Header="StartRack" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding EndRack}"
+                                                                        Header="EndRack" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding LinkCode}"
+                                                                        Header="LinkCode" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding Sequence}"
+                                                                        Header="Sequence" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding Range}"
+                                                                        Header="Range" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding FireRatio}"
+                                                                        Header="FireRatio" />
+                                                    </GridView>
+                                                </ListView.View>
+                                            </ListView>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Warheads">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ListView ItemsSource="{Binding Warheads}"
+                                                      SelectionMode="Single">
+                                                <ListView.View>
+                                                    <GridView>
+                                                        <GridViewColumn DisplayMemberBinding="{Binding TypeId}"
+                                                                        Header="TypeId" />
+                                                        <GridViewColumn Header="TypeName">
+                                                            <GridViewColumn.DisplayMemberBinding>
+                                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                                    <Binding Path="TypeId" />
+                                                                    <Binding Path="DataContext.Objects"
+                                                                             ElementName="window" />
+                                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                                             ElementName="window" />
+                                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                                             ElementName="window" />
+                                                                </MultiBinding>
+                                                            </GridViewColumn.DisplayMemberBinding>
+                                                        </GridViewColumn>
+                                                        <GridViewColumn DisplayMemberBinding="{Binding StartRack}"
+                                                                        Header="StartRack" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding EndRack}"
+                                                                        Header="EndRack" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding LinkCode}"
+                                                                        Header="LinkCode" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding Capacity}"
+                                                                        Header="Capacity" />
+                                                    </GridView>
+                                                </ListView.View>
+                                            </ListView>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding CounterMeasuresCount}"
+                                                Header="CounterMeasuresCount" />
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearCraftEntryCommand}"
+                                        CommandParameter="{x:Reference craftsWeaponsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Crafts/}">
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock />
+                                <GroupBox Header="Laser 0"
+                                          DataContext="{Binding Lasers[0]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Type Id:" />
+                                        <TextBox Text="{Binding TypeId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Type Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="TypeId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Start Rack:" />
+                                        <TextBox Text="{Binding StartRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="End Rack:" />
+                                        <TextBox Text="{Binding EndRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Link Code:" />
+                                        <TextBox Text="{Binding LinkCode, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Sequence:" />
+                                        <TextBox Text="{Binding Sequence, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Range:" />
+                                        <TextBox Text="{Binding Range, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Fire Ratio:" />
+                                        <TextBox Text="{Binding FireRatio, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <GroupBox Header="Laser 1"
+                                          DataContext="{Binding Lasers[1]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Type Id:" />
+                                        <TextBox Text="{Binding TypeId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Type Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="TypeId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Start Rack:" />
+                                        <TextBox Text="{Binding StartRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="End Rack:" />
+                                        <TextBox Text="{Binding EndRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Link Code:" />
+                                        <TextBox Text="{Binding LinkCode, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Sequence:" />
+                                        <TextBox Text="{Binding Sequence, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Range:" />
+                                        <TextBox Text="{Binding Range, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Fire Ratio:" />
+                                        <TextBox Text="{Binding FireRatio, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <GroupBox Header="Laser 2"
+                                          DataContext="{Binding Lasers[2]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Type Id:" />
+                                        <TextBox Text="{Binding TypeId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Type Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="TypeId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Start Rack:" />
+                                        <TextBox Text="{Binding StartRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="End Rack:" />
+                                        <TextBox Text="{Binding EndRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Link Code:" />
+                                        <TextBox Text="{Binding LinkCode, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Sequence:" />
+                                        <TextBox Text="{Binding Sequence, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Range:" />
+                                        <TextBox Text="{Binding Range, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Fire Ratio:" />
+                                        <TextBox Text="{Binding FireRatio, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <GroupBox Header="Warhead 0"
+                                          DataContext="{Binding Warheads[0]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Type Id:" />
+                                        <TextBox Text="{Binding TypeId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Type Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="TypeId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Start Rack:" />
+                                        <TextBox Text="{Binding StartRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="End Rack:" />
+                                        <TextBox Text="{Binding EndRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Link Code:" />
+                                        <TextBox Text="{Binding LinkCode, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Capacity:" />
+                                        <TextBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <GroupBox Header="Warhead 1"
+                                          DataContext="{Binding Warheads[1]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Type Id:" />
+                                        <TextBox Text="{Binding TypeId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Type Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="TypeId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Start Rack:" />
+                                        <TextBox Text="{Binding StartRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="End Rack:" />
+                                        <TextBox Text="{Binding EndRack, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Link Code:" />
+                                        <TextBox Text="{Binding LinkCode, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Capacity:" />
+                                        <TextBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <TextBlock Text="CounterMeasures Count:" />
+                                <TextBox Text="{Binding CounterMeasuresCount, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Crafts PoV">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="craftsPovListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding Crafts}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn DisplayMemberBinding="{Binding CockpitDeltaY}"
+                                                Header="CockpitDeltaY" />
+                                <GridViewColumn DisplayMemberBinding="{Binding CockpitPositionX}"
+                                                Header="CockpitPositionX" />
+                                <GridViewColumn DisplayMemberBinding="{Binding CockpitPositionY}"
+                                                Header="CockpitPositionY" />
+                                <GridViewColumn DisplayMemberBinding="{Binding CockpitPositionZ}"
+                                                Header="CockpitPositionZ" />
+                                <GridViewColumn Header="Turrets">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ListView ItemsSource="{Binding Turrets}"
+                                                      SelectionMode="Single">
+                                                <ListView.View>
+                                                    <GridView>
+                                                        <GridViewColumn DisplayMemberBinding="{Binding PositionX}"
+                                                                        Header="PositionX" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding PositionY}"
+                                                                        Header="PositionY" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding PositionZ}"
+                                                                        Header="PositionZ" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding OrientationX}"
+                                                                        Header="OrientationX" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding OrientationY}"
+                                                                        Header="OrientationY" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding ModelId}"
+                                                                        Header="ModelId" />
+                                                        <GridViewColumn Header="ModelName">
+                                                            <GridViewColumn.DisplayMemberBinding>
+                                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                                    <Binding Path="ModelId" />
+                                                                    <Binding Path="DataContext.Objects"
+                                                                             ElementName="window" />
+                                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                                             ElementName="window" />
+                                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                                             ElementName="window" />
+                                                                </MultiBinding>
+                                                            </GridViewColumn.DisplayMemberBinding>
+                                                        </GridViewColumn>
+                                                        <GridViewColumn DisplayMemberBinding="{Binding ArcX}"
+                                                                        Header="ArcX" />
+                                                        <GridViewColumn DisplayMemberBinding="{Binding ArcY}"
+                                                                        Header="ArcY" />
+                                                    </GridView>
+                                                </ListView.View>
+                                            </ListView>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="50"
+                                                DisplayMemberBinding="{Binding Id}"
+                                                Header="ID" />
+                                <GridViewColumn Width="150"
+                                                Header="Name">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearCraftEntryCommand}"
+                                        CommandParameter="{x:Reference craftsPovListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Crafts/}">
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock />
+                                <TextBlock Text="Cockpit Delta Y:" />
+                                <TextBox Text="{Binding CockpitDeltaY, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Cockpit Position X:" />
+                                <TextBox Text="{Binding CockpitPositionX, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Cockpit Position Y:" />
+                                <TextBox Text="{Binding CockpitPositionY, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock />
+                                <TextBlock Text="Cockpit Position Z:" />
+                                <TextBox Text="{Binding CockpitPositionZ, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <TextBlock />
+                                <GroupBox Header="Turret 0"
+                                          DataContext="{Binding Turrets[0]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Position X:" />
+                                        <TextBox Text="{Binding PositionX, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Position Y:" />
+                                        <TextBox Text="{Binding PositionY, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Position Z:" />
+                                        <TextBox Text="{Binding PositionZ, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Orientation X:" />
+                                        <TextBox Text="{Binding OrientationX, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Orientation Y:" />
+                                        <TextBox Text="{Binding OrientationY, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Model Id:" />
+                                        <TextBox Text="{Binding ModelId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Model Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="ModelId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Arc X:" />
+                                        <TextBox Text="{Binding ArcX, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Arc Y:" />
+                                        <TextBox Text="{Binding ArcY, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <GroupBox Header="Turret 1"
+                                          DataContext="{Binding Turrets[1]}">
+                                    <StackPanel>
+                                        <TextBlock Text="Position X:" />
+                                        <TextBox Text="{Binding PositionX, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Position Y:" />
+                                        <TextBox Text="{Binding PositionY, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Position Z:" />
+                                        <TextBox Text="{Binding PositionZ, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Orientation X:" />
+                                        <TextBox Text="{Binding OrientationX, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Orientation Y:" />
+                                        <TextBox Text="{Binding OrientationY, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Model Id:" />
+                                        <TextBox Text="{Binding ModelId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Model Name:" />
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                    <Binding Path="ModelId" />
+                                                    <Binding Path="DataContext.Objects"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelSpacecraft"
+                                                             ElementName="window" />
+                                                    <Binding Path="DataContext.FlightModelEquipment"
+                                                             ElementName="window" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Text="Arc X:" />
+                                        <TextBox Text="{Binding ArcX, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="Arc Y:" />
+                                        <TextBox Text="{Binding ArcY, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <TextBlock />
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeCraftIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Weapons">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="weaponsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding Weapons}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Width="150"
+                                                    Header="Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                <Binding Path="Id" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="50"
+                                                    DisplayMemberBinding="{Binding Id}"
+                                                    Header="ID" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Power}"
+                                                    Header="Power" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Speed}"
+                                                    Header="Speed" />
+                                    <GridViewColumn Header="Duration">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:WeaponDurationConverter.Default}"
+                                                          StringFormat="R">
+                                                <Binding Path="DurationIntegerPart" />
+                                                <Binding Path="DurationDecimalPart" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding DurationIntegerPart}"
+                                                    Header="IntegerPart" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding DurationDecimalPart}"
+                                                    Header="DecimalPart" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding HitboxSpan}"
+                                                    Header="HitboxSpan" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding HitboxSpan, Converter={x:Static local:MetersConverter.Default}, StringFormat=R}"
+                                                    Header="m" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Behavior}"
+                                                    Header="Behavior" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Score}"
+                                                    Header="Score" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Side}"
+                                                    Header="Side" />
+                                    <GridViewColumn Width="50"
+                                                    DisplayMemberBinding="{Binding SideModel}"
+                                                    Header="SideModel ID" />
+                                    <GridViewColumn Width="150"
+                                                    Header="SideModel Name">
+                                        <GridViewColumn.DisplayMemberBinding>
+                                            <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                                <Binding Path="SideModel" />
+                                                <Binding Path="DataContext.Objects"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelSpacecraft"
+                                                         ElementName="window" />
+                                                <Binding Path="DataContext.FlightModelEquipment"
+                                                         ElementName="window" />
+                                            </MultiBinding>
+                                        </GridViewColumn.DisplayMemberBinding>
+                                    </GridViewColumn>
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Clear"
+                                        Command="{Binding ClearWeaponEntryCommand}"
+                                        CommandParameter="{x:Reference weaponsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding Weapons/}">
+                                <TextBlock Text="Name:" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock />
+                                <TextBlock Text="Power:" />
+                                <TextBox Text="{Binding Power, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Speed:" />
+                                <TextBox Text="{Binding Speed, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Duration:" />
+                                <TextBox TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding Converter="{x:Static local:WeaponDurationConverter.Default}"
+                                                      StringFormat="R"
+                                                      UpdateSourceTrigger="LostFocus">
+                                            <Binding Path="DurationIntegerPart" />
+                                            <Binding Path="DurationDecimalPart" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <TextBlock Text="Duration Integer Part:" />
+                                <TextBox Text="{Binding DurationIntegerPart, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock Text="Duration Decimal Part:" />
+                                <TextBox Text="{Binding DurationDecimalPart, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Hitbox Span:" />
+                                <TextBox Text="{Binding HitboxSpan, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left"
+                                               Text="m: " />
+                                    <TextBox Text="{Binding HitboxSpan, Converter={x:Static local:MetersConverter.Default}, StringFormat=R, UpdateSourceTrigger=LostFocus}"
+                                             TextWrapping="Wrap" />
+                                </DockPanel>
+                                <TextBlock />
+                                <TextBlock Text="Behavior:" />
+                                <TextBox Text="{Binding Behavior, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Score:" />
+                                <TextBox Text="{Binding Score, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Side:" />
+                                <TextBox Text="{Binding Side, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock />
+                                <TextBlock Text="Side Model:" />
+                                <TextBox Text="{Binding SideModel, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                                <TextBlock Text="Side Model Name" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{x:Static local:ExeModelIndexConverter.Default}">
+                                            <Binding Path="SideModel" />
+                                            <Binding Path="DataContext.Objects"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelSpacecraft"
+                                                     ElementName="window" />
+                                            <Binding Path="DataContext.FlightModelEquipment"
+                                                     ElementName="window" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Spacecrafts">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="spacecraftsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding FlightModelSpacecraft}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Header="ID"
+                                                    Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <Binding>
+                                                            <Binding.Converter>
+                                                                <local:ItemIndexConverter DataContext="{Binding Source={x:Reference spacecraftsListView}, Path=ItemsSource}"
+                                                                                          StartIndex="0" />
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="300"
+                                                    DisplayMemberBinding="{Binding Value}"
+                                                    Header="Value" />
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Add New"
+                                        Command="{Binding AddNewFlightModelSpacecraftEntryCommand}"
+                                        CommandParameter="{x:Reference spacecraftsListView}" />
+                                <Separator />
+                                <Button Content="Clear"
+                                        Command="{Binding ClearFlightModelSpacecraftEntryCommand}"
+                                        CommandParameter="{x:Reference spacecraftsListView}" />
+                                <Separator />
+                                <Button Content="Remove"
+                                        Command="{Binding RemoveFlightModelSpacecraftEntryCommand}"
+                                        CommandParameter="{x:Reference spacecraftsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding FlightModelSpacecraft/}">
+                                <TextBlock Text="Value:" />
+                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Equipments">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"
+                                          MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch" />
+                    <ListView x:Name="equipmentsListView"
+                              Grid.Column="0"
+                              ItemsSource="{Binding FlightModelEquipment}"
+                              IsSynchronizedWithCurrentItem="True"
+                              SelectionMode="Single"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Header="ID"
+                                                    Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <Binding>
+                                                            <Binding.Converter>
+                                                                <local:ItemIndexConverter DataContext="{Binding Source={x:Reference equipmentsListView}, Path=ItemsSource}"
+                                                                                          StartIndex="0" />
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="300"
+                                                    DisplayMemberBinding="{Binding Value}"
+                                                    Header="Value" />
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <DockPanel Grid.Column="2">
+                        <ToolBarPanel DockPanel.Dock="Top">
+                            <ToolBar ToolBarTray.IsLocked="True">
+                                <Button Content="Add New"
+                                        Command="{Binding AddNewFlightModelEquipmentEntryCommand}"
+                                        CommandParameter="{x:Reference equipmentsListView}" />
+                                <Separator />
+                                <Button Content="Clear"
+                                        Command="{Binding ClearFlightModelEquipmentEntryCommand}"
+                                        CommandParameter="{x:Reference equipmentsListView}" />
+                                <Separator />
+                                <Button Content="Remove"
+                                        Command="{Binding RemoveFlightModelEquipmentEntryCommand}"
+                                        CommandParameter="{x:Reference equipmentsListView}" />
+                            </ToolBar>
+                        </ToolBarPanel>
+                        <ScrollViewer>
+                            <StackPanel DataContext="{Binding FlightModelEquipment/}">
+                                <TextBlock Text="Value:" />
+                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
