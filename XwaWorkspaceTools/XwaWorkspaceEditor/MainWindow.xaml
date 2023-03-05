@@ -143,6 +143,32 @@
                                 <TextBlock />
                                 <TextBlock Text="Map Icon Rect:" />
                                 <TextBlock Text="{Binding MapIconRect}" />
+                                <UniformGrid Rows="1">
+                                    <Image Source="{Binding MapIcon[5]}"
+                                           MaxWidth="50"
+                                           MaxHeight="50"
+                                           Margin="2" />
+                                    <Image Source="{Binding MapIcon[0]}"
+                                           MaxWidth="50"
+                                           MaxHeight="50"
+                                           Margin="2" />
+                                    <Image Source="{Binding MapIcon[1]}"
+                                           MaxWidth="50"
+                                           MaxHeight="50"
+                                           Margin="2" />
+                                    <Image Source="{Binding MapIcon[2]}"
+                                           MaxWidth="50"
+                                           MaxHeight="50"
+                                           Margin="2" />
+                                    <Image Source="{Binding MapIcon[3]}"
+                                           MaxWidth="50"
+                                           MaxHeight="50"
+                                           Margin="2" />
+                                    <Image Source="{Binding MapIcon[4]}"
+                                           MaxWidth="50"
+                                           MaxHeight="50"
+                                           Margin="2" />
+                                </UniformGrid>
                                 <TextBlock />
                                 <TextBlock Text="Map Icon Rect Left:" />
                                 <TextBox Text="{Binding MapIconRectLeft, UpdateSourceTrigger=PropertyChanged}" />

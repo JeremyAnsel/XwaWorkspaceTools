@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JeremyAnsel.Xwa.Cbm;
 using JeremyAnsel.Xwa.Workspace;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,6 +14,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Markup;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 
 namespace XwaWorkspaceEditor
@@ -22,15 +27,18 @@ namespace XwaWorkspaceEditor
         {
             private readonly XwaShipListEntry ship;
 
-            public ShipListEntry(XwaShipListEntry ship)
+            public ShipListEntry(XwaShipListEntry ship, ViewModel model)
             {
                 this.ship = ship ?? new XwaShipListEntry();
+                this.Model = model;
             }
 
             public XwaShipListEntry GetShip()
             {
                 return this.ship;
             }
+
+            public ViewModel Model { get; }
 
             public string CraftName
             {
@@ -114,6 +122,7 @@ namespace XwaWorkspaceEditor
                     ship.MapIconRectLeft = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(MapIconRect));
+                    OnPropertyChanged(nameof(MapIcon));
                 }
             }
 
@@ -129,6 +138,7 @@ namespace XwaWorkspaceEditor
                     ship.MapIconRectTop = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(MapIconRect));
+                    OnPropertyChanged(nameof(MapIcon));
                 }
             }
 
@@ -144,6 +154,7 @@ namespace XwaWorkspaceEditor
                     ship.MapIconRectRight = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(MapIconRect));
+                    OnPropertyChanged(nameof(MapIcon));
                 }
             }
 
@@ -159,6 +170,7 @@ namespace XwaWorkspaceEditor
                     ship.MapIconRectBottom = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(MapIconRect));
+                    OnPropertyChanged(nameof(MapIcon));
                 }
             }
 
@@ -167,6 +179,38 @@ namespace XwaWorkspaceEditor
                 get
                 {
                     return ship.MapIconRect;
+                }
+            }
+
+            public BitmapSource[] MapIcon
+            {
+                get
+                {
+                    var sources = new BitmapSource[this.Model.Licons.Length];
+
+                    var rect = new Int32Rect(
+                                this.MapIconRectLeft,
+                                this.MapIconRectTop,
+                                this.MapIconRectRight - this.MapIconRectLeft,
+                                this.MapIconRectBottom - this.MapIconRectTop);
+
+                    if (rect.Width <= 0 || rect.Height <= 0)
+                    {
+                        return sources;
+                    }
+
+                    try
+                    {
+                        for (int i = 0; i < this.Model.Licons.Length; i++)
+                        {
+                            sources[i] = new CroppedBitmap(this.Model.Licons[i], rect);
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    return sources;
                 }
             }
         }
@@ -1334,6 +1378,7 @@ namespace XwaWorkspaceEditor
             var workspace = new XwaWorkspace(path);
 
             this.WorkingDirectory = path;
+            this.LoadLicons(workspace);
             this.SetShipLists(workspace);
             this.SetSpecDesc(workspace);
             this.SetCraftStrings(workspace);
@@ -1351,6 +1396,8 @@ namespace XwaWorkspaceEditor
         }
 
         public string WorkingDirectory { get; set; }
+
+        public BitmapSource[] Licons { get; private set; }
 
         public ObservableCollection<ShipListEntry> ShipLists { get; } = new();
 
@@ -1370,11 +1417,28 @@ namespace XwaWorkspaceEditor
 
         public ObservableCollection<FlightModelEquipmentEntry> FlightModelEquipment { get; } = new();
 
+        private void LoadLicons(XwaWorkspace workspace)
+        {
+            try
+            {
+                this.Licons = new BitmapSource[6];
+                this.Licons[0] = CreateBitmapSourceFromCbmFile(Path.Combine(workspace.WorkingDirectory, @"FrontRes\MapIcons\lgrn_4.cbm"));
+                this.Licons[1] = CreateBitmapSourceFromCbmFile(Path.Combine(workspace.WorkingDirectory, @"FrontRes\MapIcons\lred_4.cbm"));
+                this.Licons[2] = CreateBitmapSourceFromCbmFile(Path.Combine(workspace.WorkingDirectory, @"FrontRes\MapIcons\lblu_4.cbm"));
+                this.Licons[3] = CreateBitmapSourceFromCbmFile(Path.Combine(workspace.WorkingDirectory, @"FrontRes\MapIcons\lyel_4.cbm"));
+                this.Licons[4] = CreateBitmapSourceFromCbmFile(Path.Combine(workspace.WorkingDirectory, @"FrontRes\MapIcons\lprp_4.cbm"));
+                this.Licons[5] = CreateBitmapSourceFromCbmFile(Path.Combine(workspace.WorkingDirectory, @"FrontRes\MapIcons\Licons.cbm"));
+            }
+            catch
+            {
+            }
+        }
+
         private void SetShipLists(XwaWorkspace workspace)
         {
             foreach (var model in workspace.ShipListFile.Entries)
             {
-                var entry = new ShipListEntry(model);
+                var entry = new ShipListEntry(model, this);
 
                 this.ShipLists.Add(entry);
             }
@@ -1388,7 +1452,7 @@ namespace XwaWorkspaceEditor
                 return;
             }
 
-            var entry = new ShipListEntry(null);
+            var entry = new ShipListEntry(null, this);
             ShipLists.Add(entry);
             selector.SelectedItem = entry;
             selector.ScrollIntoView(entry);
@@ -1402,7 +1466,7 @@ namespace XwaWorkspaceEditor
                 return;
             }
 
-            ShipLists[selector.SelectedIndex] = new ShipListEntry(null);
+            ShipLists[selector.SelectedIndex] = new ShipListEntry(null, this);
         }
 
         [RelayCommand]
@@ -1779,6 +1843,14 @@ namespace XwaWorkspaceEditor
             }
 
             workspace.Write(workspace.WorkingDirectory);
+        }
+
+        private static BitmapSource CreateBitmapSourceFromCbmFile(string cbmPath)
+        {
+            CbmFile file = CbmFile.FromFile(cbmPath);
+            CbmImage image = file.Images[0];
+            byte[] data = image.GetImageData(true);
+            return BitmapSource.Create(image.Width, image.Height, 96, 96, PixelFormats.Bgra32, null, data, image.Width * 4);
         }
     }
 }
