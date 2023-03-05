@@ -12,8 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
     <PackageReference Include="FolderBrowserForWPF" Version="1.2.0" />
+    <PackageReference Include="JeremyAnsel.Xwa.Cbm" Version="3.0.12" />
     <PackageReference Include="JeremyAnsel.Xwa.Workspace" Version="1.0.1" />
   </ItemGroup>
 
