@@ -610,6 +610,10 @@
                                 <Button Content="Clear"
                                         Command="{Binding ClearObjectEntryCommand}"
                                         CommandParameter="{x:Reference objectsListView}" />
+                                <Separator />
+                                <Button Content="Create SHP"
+                                        Command="{Binding CreateShpFileForObjectEntryCommand}"
+                                        CommandParameter="{x:Reference objectsListView}" />
                             </ToolBar>
                         </ToolBarPanel>
                         <ScrollViewer>

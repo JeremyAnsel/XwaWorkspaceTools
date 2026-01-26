@@ -2,22 +2,16 @@
 using CommunityToolkit.Mvvm.Input;
 using JeremyAnsel.Xwa.Cbm;
 using JeremyAnsel.Xwa.Workspace;
+using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Xml.Linq;
 
 namespace XwaWorkspaceEditor
 {
@@ -1613,6 +1607,97 @@ namespace XwaWorkspaceEditor
             }
 
             Objects[selector.SelectedIndex] = new ObjectEntry(null);
+        }
+
+        [RelayCommand]
+        private void CreateShpFileForObjectEntry(ListBox selector)
+        {
+            if (selector is null || selector.SelectedIndex == -1)
+            {
+                return;
+            }
+
+            var shp = new XwaShpFile();
+
+            ObjectEntry objectEntry = Objects.ElementAtOrDefault(selector.SelectedIndex);
+            if (objectEntry is null)
+            {
+                return;
+            }
+
+            int speciesIndex = -1;
+            for (int i = 0; i < Species.Count; i++)
+            {
+                if (Species[i].Value == selector.SelectedIndex)
+                {
+                    speciesIndex = i;
+                    break;
+                }
+            }
+
+            shp.ObjectIndex = (byte)selector.SelectedIndex;
+
+            shp.ShipCategory = objectEntry.ShipCategory;
+            shp.ObjectGameOptions = objectEntry.GameOptions;
+            shp.OptFile = objectEntry.DataIndex1 switch
+            {
+                0 => FlightModelSpacecraft.ElementAtOrDefault(objectEntry.DataIndex2)?.Value ?? string.Empty,
+                1 => FlightModelEquipment.ElementAtOrDefault(objectEntry.DataIndex2)?.Value ?? string.Empty,
+                _ => string.Empty,
+            };
+
+            shp.Craft = Crafts.ElementAtOrDefault(objectEntry.CraftIndex)?.GetCraft() ?? new();
+
+            CraftStringsEntry craftStringsEntry = CraftStrings.ElementAtOrDefault(selector.SelectedIndex - 1);
+            if (craftStringsEntry is not null)
+            {
+                shp.CraftPluralName = craftStringsEntry.CraftPluralName;
+                shp.CraftShortName = craftStringsEntry.CraftShortName;
+            }
+
+            SpecDescEntry specDescEntry = SpecDescs.ElementAtOrDefault(speciesIndex - 1);
+            if (specDescEntry is not null)
+            {
+                shp.CraftLongName = specDescEntry.CraftLongName;
+                shp.Manufacturer = specDescEntry.Manufacturer;
+                shp.Side = specDescEntry.Side;
+                shp.Crew = specDescEntry.Crew;
+                shp.Description = specDescEntry.Description;
+            }
+
+            ShipListEntry shipListEntry = ShipLists.ElementAtOrDefault(speciesIndex - 1);
+            if (shipListEntry is not null)
+            {
+                shp.Flyable = shipListEntry.Flyable;
+                shp.CraftName = shipListEntry.CraftName;
+            }
+
+            var dialog = new SaveFileDialog();
+            dialog.AddExtension = true;
+            dialog.DefaultExt = ".shp";
+            dialog.Filter = "SHP files (*.shp)|*.shp";
+            dialog.InitialDirectory = this.WorkingDirectory;
+
+            string fileName;
+
+            if (dialog.ShowDialog(Application.Current.MainWindow) == true)
+            {
+                fileName = dialog.FileName;
+            }
+            else
+            {
+                return;
+            }
+
+            try
+            {
+                shp.Write(fileName);
+                MessageBox.Show($"{fileName} was created.", "Create SHP");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SetCrafts(XwaWorkspace workspace)
