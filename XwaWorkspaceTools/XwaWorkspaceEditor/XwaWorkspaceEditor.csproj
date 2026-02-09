@@ -16,7 +16,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="FolderBrowserForWPF" Version="1.2.0" />
     <PackageReference Include="JeremyAnsel.Xwa.Cbm" Version="3.0.21" />
-    <PackageReference Include="JeremyAnsel.Xwa.Workspace" Version="1.0.5" />
+    <PackageReference Include="JeremyAnsel.Xwa.Workspace" Version="1.0.6" />
   </ItemGroup>
 
   <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
